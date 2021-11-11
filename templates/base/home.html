@@ -23,6 +23,8 @@
             <h1>Home page</h1>
             <h5>{{ rooms_count }} rooms available</h5>
             <a href="{% url 'create_room' %}">Create room</a>
+            <hr>
+            <hr>
             {% for room in rooms %}
                 <div>
                     {% if request.user == room.host %}

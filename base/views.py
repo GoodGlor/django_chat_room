@@ -1,12 +1,12 @@
 import django.contrib.auth.models
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Room, Topic
+from .models import Room, Topic, Message
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from .forms import RoomForm
+from .forms import RoomForm, MessageForm
 from django.db.models import Q
 
 
@@ -17,7 +17,7 @@ def register_page(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.username.lower()
+            user.username = user.username
             user.save()
             login(request, user)
             return redirect('home')
@@ -32,7 +32,7 @@ def login_page(request):
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
-        username = request.POST.get('username').lower()
+        username = request.POST.get('username')
         password = request.POST.get('password')
         try:
             user = User.objects.get(username=username)
@@ -72,20 +72,63 @@ def home(request):
 
 def room(request, pk):
     value = Room.objects.get(id=pk)
-    context = {'room': value}
+    room_message = value.message_set.all().order_by('-created')
+    participants = value.message_set.all().values('user__username').distinct()
+    # print(testtt)
+    # participants = value.participants.all()
+    if request.method == "POST":
+        message = Message.objects.create(
+            user=request.user,
+            room=value,
+            body=request.POST.get('body')
+        )
+        value.participants.add(request.user)
+    context = {'room': value, 'room_message': room_message, 'participants': participants}
     return render(request, 'base/room.html', context)
 
 
 @login_required(login_url='login')
-def create_room(request):
-    form = RoomForm()
+def delete_message(request, pk):
+    message_comment = Message.objects.get(id=pk)
+    room_id = message_comment.room.id
+    if request.user != message_comment.user:
+        messages.error(request, 'Access Denied')
+        return redirect('room', room_id)
     if request.method == 'POST':
-        form = RoomForm(request.POST)
+        message_comment.delete()
+        return redirect('room', room_id)
+    return render(request, 'base/delete_rom.html', {'obj': message_comment})
+
+
+@login_required(login_url='login')
+def update_message(request, pk):
+    message_comment = Message.objects.get(id=pk)
+    form = MessageForm(instance=message_comment)
+    room_id = message_comment.room.id
+    if request.user != message_comment.user:
+        messages.error(request, 'Access Denied')
+        return redirect('room', room_id)
+    context = {'form': form}
+    if request.method == 'POST':
+        form = MessageForm(request.POST, instance=message_comment)
+        if form.is_valid():
+            form.save()
+            return redirect('room', room_id)
+    return render(request, 'base/message_form.html', context)
+
+
+@login_required(login_url='login')
+def create_room(request):
+    user_name = Room(host=request.user)
+
+    form_full = RoomForm()
+    if request.method == 'POST':
+        form = RoomForm(request.POST, instance=user_name)
         if form.is_valid():
             form.save()
             return redirect('home')
 
-    context = {'form': form}
+    context = {'form': form_full}
     return render(request, 'base/room_form.html', context)
 
 

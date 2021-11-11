@@ -16,6 +16,7 @@ class Room(models.Model):
     description = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
+    participants = models.ManyToManyField(User, related_name='participants', blank=True, null=True)
 
     class Meta:
         ordering = ['-updated', '-created']
