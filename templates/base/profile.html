@@ -1,0 +1,54 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <main class="profile-page layout layout--3">
+        <div class="container">
+            <!-- Topics Start -->
+            {% include 'base/topics_components.html' %}
+            <!-- Topics End -->
+
+            <!-- Room List Start -->
+            <div class="roomList">
+                <div class="profile">
+                    <div class="profile__avatar">
+                        <div class="avatar avatar--large active">
+                            <img src="https://randomuser.me/portraits/men/29.jpg"/>
+                        </div>
+                    </div>
+                    <div class="profile__info">
+                        <h1>{{ user.username }}</h1>
+                        <p>@{{ user.username }}</p>
+                        {% if request.user == user %}
+                            <a href="{% url 'edit_user_page' %}" class="btn btn--main btn--pill">Edit Profile</a>
+                        {% endif %}
+                    </div>
+                    <div class="profile__about">
+                        <h3>About</h3>
+                        <p>
+                            I don't smoke. Never have and never will!
+
+                            I love cooking, yet I never make the same dish twice! Inventing new recipes is what keeps
+                            me in the kitchen.
+
+                            I speak fluent German and get the funniest stares anytime I answer my mother's calls with
+                            a "Hallo! Was machst du?"
+                            {#                            {{ user.bio }}#}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="roomList__header">
+                    <div>
+                        <h2><a>Study Rooms Hosted by {{ user.username }}</a></h2>
+                    </div>
+                </div>
+                {% include 'base/feed_components.html' %}
+            </div>
+            <!-- Room List End -->
+
+            <!-- Activities Start -->
+            {% include 'base/activity_components.html' %}
+            <!-- Activities End -->
+        </div>
+    </main>
+{% endblock content %}

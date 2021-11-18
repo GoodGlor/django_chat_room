@@ -16,13 +16,17 @@ class Room(models.Model):
     description = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-    participants = models.ManyToManyField(User, related_name='participants', blank=True, null=True)
+    participants = models.ManyToManyField(User, related_name='participants', blank=True)
 
     class Meta:
         ordering = ['-updated', '-created']
 
     def __str__(self):
-        return self.name
+        name = self.name
+        if len(name) > 30:
+            return self.name[:30] + "..."
+        elif len(name) < 30:
+            return self.name
 
 
 class Message(models.Model):
@@ -32,5 +36,12 @@ class Message(models.Model):
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-updated', '-created']
+
     def __str__(self):
-        return self.body[:31]
+        body = self.body
+        if len(body) > 20:
+            return body[:20] + "..."
+        elif len(body) < 20:
+            return body

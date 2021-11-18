@@ -15,4 +15,7 @@ urlpatterns = [
     path('delete_message/<int:pk>/', views.delete_message, name='delete_message'),
     path('update_message/<int:pk>/', views.update_message, name='update_message'),
 
+    path('profile/<int:pk>/', views.profile_page, name='profile_page'),
+    path('profile_edit/', views.edit_user_page, name='edit_user_page'),
+
 ]
