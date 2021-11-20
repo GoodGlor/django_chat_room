@@ -18,4 +18,7 @@ urlpatterns = [
     path('profile/<int:pk>/', views.profile_page, name='profile_page'),
     path('profile_edit/', views.edit_user_page, name='edit_user_page'),
 
+    path('topics/', views.topics_page, name='topics_page'),
+    path('activity/', views.activity_page, name='activity_page'),
+
 ]

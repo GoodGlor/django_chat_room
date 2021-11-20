@@ -1,20 +1,18 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
-from .forms import RoomForm, MessageForm, UserForm
+from .forms import RoomForm, MessageForm, UserForm, MyUserCreationFrom
+from .models import Room, Topic, Message, User
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .models import Room, Topic, Message
 from django.contrib import messages
 import django.contrib.auth.models
 from django.db.models import Q
 
 
 def register_page(request):
-    form = UserCreationForm()
+    form = MyUserCreationFrom()
     context = {'form': form}
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = MyUserCreationFrom(request.POST, request.FILES)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username
@@ -32,13 +30,13 @@ def login_page(request):
     if request.user.is_authenticated:
         return redirect('home')
     if request.method == 'POST':
-        username = request.POST.get('username')
+        email = request.POST.get('email')
         password = request.POST.get('password')
         try:
-            user = User.objects.get(username=username)
+            user = User.objects.get(email=email)
         except django.contrib.auth.models.User.DoesNotExist:
             messages.error(request, 'User dose not exist')
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
         if user is not None:
             login(request, user)
             return redirect('home')
@@ -64,7 +62,7 @@ def home(request):
 
     )
     rooms_count = rooms.count()
-    topics = Topic.objects.all()
+    topics = Topic.objects.all()[:5]
     messages_room = Message.objects.filter(Q(room__topic__name__icontains=q))
     user = request.user
     context = {'rooms': rooms, 'topics': topics, 'rooms_count': rooms_count, 'all_messages': messages_room,
@@ -187,10 +185,31 @@ def edit_user_page(request):
     user = request.user
     form = UserForm(instance=user)
     if request.method == 'POST':
-        form = UserForm(request.POST, instance=user)
+        form = UserForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             return redirect('profile_page', pk=user.id)
 
     context = {'form': form}
     return render(request, 'base/edit_user.html', context)
+
+
+def topics_page(request):
+    q = request.GET.get('q') if request.GET.get('q') != None else ''
+
+    rooms = Room.objects.all()
+    rooms_count = rooms.count()
+    topics = Topic.objects.filter(name__icontains=q)
+
+    context = {'topics': topics, 'rooms_count': rooms_count}
+
+    return render(request, 'base/topics.html', context)
+
+
+def activity_page(request):
+    messages_room = Message.objects.filter()
+    user = request.user
+
+    context = {'all_messages': messages_room, 'user': user}
+
+    return render(request, 'base/activity.html', context)

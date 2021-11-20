@@ -12,7 +12,7 @@
                 <div class="profile">
                     <div class="profile__avatar">
                         <div class="avatar avatar--large active">
-                            <img src="https://randomuser.me/portraits/men/29.jpg"/>
+                            <img src="{{ user.avatar.url }}"/>
                         </div>
                     </div>
                     <div class="profile__info">
@@ -25,14 +25,7 @@
                     <div class="profile__about">
                         <h3>About</h3>
                         <p>
-                            I don't smoke. Never have and never will!
-
-                            I love cooking, yet I never make the same dish twice! Inventing new recipes is what keeps
-                            me in the kitchen.
-
-                            I speak fluent German and get the funniest stares anytime I answer my mother's calls with
-                            a "Hallo! Was machst du?"
-                            {#                            {{ user.bio }}#}
+                            {{ user.bio }}
                         </p>
                     </div>
                 </div>
